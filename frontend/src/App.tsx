@@ -1,45 +1,40 @@
 import { useEffect, useState } from "react";
+import { Container, Typography, Grid, Paper, TextField } from "@mui/material";
+import Header from "./components/Header";
+import UploadCard from "./components/UploadCard";
+import ChatPanel from "./components/ChatPanel";
 import { createWorkspace } from "./lib/api";
-import Uploader from "./components/Uploader";
-import Chat from "./components/Chat";
-import "./App.css";
 
 export default function App() {
   const [ws, setWs] = useState("demo");
-  const [ready, setReady] = useState(false);
-  const [msg, setMsg] = useState<string | null>(null);
+  const [status, setStatus] = useState<string | null>(null);
 
   useEffect(() => {
     (async () => {
-      try {
-        setMsg("Creating workspace…");
-        await createWorkspace(ws);
-        setReady(true);
-        setMsg(null);
-      } catch (e: any) {
-        setMsg(e.message ?? "Failed to create workspace");
-      }
+      try { setStatus("Creating workspace…"); await createWorkspace(ws); setStatus(null); }
+      catch (e: any) { setStatus(e?.message || "Failed to create workspace"); }
     })();
   }, [ws]);
 
   return (
-    <div className="max-w-3xl mx-auto p-6 space-y-4">
-      <h1 className="text-2xl font-bold">PDF Chat Studio</h1>
+    <>
+      <Header />
+      <Container maxWidth="lg" sx={{ py: 6 }}>
+        <Typography variant="h3" fontWeight={800} textAlign="center" sx={{ mb: 4 }}>
+          PDF <span style={{ color: "#1976d2" }}>Chat</span> Studio
+        </Typography>
 
-      <label className="text-sm">Workspace</label>
-      <input
-        className="border p-2 rounded w-full"
-        value={ws}
-        onChange={(e) => setWs(e.target.value)}
-      />
-      {msg && <div className="text-sm">{msg}</div>}
+        <Paper variant="outlined" sx={{ p: 2.5, mb: 3 }}>
+          <Typography variant="caption" color="text.secondary">Workspace</Typography>
+          <TextField fullWidth value={ws} onChange={(e) => setWs(e.target.value)} size="small" sx={{ mt: 0.5 }} />
+          {status && <Typography variant="caption" color="text.secondary" sx={{ mt: 1, display: "block" }}>{status}</Typography>}
+        </Paper>
 
-      {ready && (
-        <>
-          <Uploader workspace={ws} />
-          <Chat workspace={ws} />
-        </>
-      )}
-    </div>
+        <Grid container spacing={2.5}>
+          <Grid item xs={12} md={5}><UploadCard workspace={ws} /></Grid>
+          <Grid item xs={12} md={7}><ChatPanel workspace={ws} /></Grid>
+        </Grid>
+      </Container>
+    </>
   );
 }

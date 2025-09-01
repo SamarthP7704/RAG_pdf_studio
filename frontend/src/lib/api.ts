@@ -11,10 +11,7 @@ export async function createWorkspace(name: string) {
 export async function uploadPDF(workspace: string, file: File) {
   const fd = new FormData();
   fd.append("file", file);
-  const r = await fetch(`${API}/workspaces/${workspace}/upload`, {
-    method: "POST",
-    body: fd,
-  });
+  const r = await fetch(`${API}/workspaces/${workspace}/upload`, { method: "POST", body: fd });
   if (!r.ok) throw new Error(await r.text());
   return r.json();
 }
